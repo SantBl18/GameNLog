@@ -5,6 +5,8 @@ namespace GameNLog.Models
 {
     public class PlayedGameReview
     {
+        [Key]
+        public int ReviewID { get; set; }
         [ForeignKey("PlayedGameID")]
         public int PlayedGameID { get; set; }
         public int Score { get; set; }
