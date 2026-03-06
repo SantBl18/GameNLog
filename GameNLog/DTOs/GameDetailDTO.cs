@@ -4,6 +4,7 @@
     {
         public int Id { get; set; }
         public required string Name { get; set; }
+        public required string Summary { get; set; }
         public string? CoverURL { get; set; }
         public List<string>? Genres { get; set; }
         public List<string>? Platforms { get; set; }
