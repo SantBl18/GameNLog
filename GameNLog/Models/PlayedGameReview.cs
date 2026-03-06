@@ -11,5 +11,7 @@ namespace GameNLog.Models
         public int PlayedGameID { get; set; }
         public int Score { get; set; }
         public string? Description { get; set; }
+
+
     }
 }

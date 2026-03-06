@@ -7,5 +7,7 @@
         public int GameID { get; set; }
         public int GenreID { get; set; }
 
+        public required Genre Genre { get; set; }
+        public required Game Game { get; set; }
     }
 }

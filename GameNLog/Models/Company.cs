@@ -7,9 +7,9 @@ namespace GameNLog.Models
         [Key]
         public int CompanyID { get; set; }
         [Required]
-        public string? Name { get; set; }
+        public required string Name { get; set; }
         [Required]
-        public string? Description { get; set; }
+        public required string Description { get; set; }
         [DataType(DataType.DateTime)]
         public DateTime UpdatedAt { get; set; }
     }

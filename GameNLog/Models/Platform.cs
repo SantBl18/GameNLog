@@ -7,11 +7,11 @@ namespace GameNLog.Models
         [Key]
         public int PlatformID { get; set; }
         [Required]
-        public string? Name { get; set; }
+        public required string Name { get; set; }
         [Required]
-        public string? Slug { get; set; }
+        public required string Slug { get; set; }
         [Required]
-        public string? Summary { get; set; }
+        public required string Summary { get; set; }
 
 
     }

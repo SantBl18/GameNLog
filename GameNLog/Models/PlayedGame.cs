@@ -10,5 +10,7 @@ namespace GameNLog.Models
         public int GameID { get; set; }
         [DataType(DataType.DateTime)]
         public int PlayedAt { get; set; }
+
+        public ICollection<PlayedGameReview> Reviews { get; } = new List<PlayedGameReview>();
     }
 }
