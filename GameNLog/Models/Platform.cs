@@ -11,8 +11,8 @@ namespace GameNLog.Models
         [Required]
         public required string Slug { get; set; }
         [Required]
-        public required string Summary { get; set; }
-
+        public required string Abbreviation { get; set; }
+        public ICollection<GamePlatform> GamePlatforms { get; } = [];
 
     }
 }

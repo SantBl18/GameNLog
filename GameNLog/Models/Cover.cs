@@ -6,6 +6,7 @@ namespace GameNLog.Models
     {
         [Key]
         public int CoverID { get; set; }
-        public int ImageID { get; set; }
+        [Required]
+        public required string ImageID { get; set; }
     }
 }

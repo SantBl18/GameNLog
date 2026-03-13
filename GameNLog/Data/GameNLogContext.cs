@@ -12,7 +12,7 @@ namespace GameNLog.Data
         public DbSet<Platform> Platforms { get; set; }
         public DbSet<Company> Companies { get; set; }
         public DbSet<User> Users { get; set; }
-        public DbSet<GameCompany> GameCompanies { get; set; }
+        public DbSet<InvolvedCompany> InvolvedCompanies { get; set; }
         public DbSet<GameGenre> GameGenres { get; set; }
         public DbSet<GamePlatform> GamePlatforms { get; set; }
         public DbSet<PlayedGame> PlayedGames { get; set; }
@@ -20,7 +20,7 @@ namespace GameNLog.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<GameCompany>()
+            modelBuilder.Entity<InvolvedCompany>()
                 .HasKey(c => new { c.GameID, c.CompanyID });
 
             modelBuilder.Entity<GameGenre>()

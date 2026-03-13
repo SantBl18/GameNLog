@@ -23,7 +23,7 @@ namespace GameNLog.Services
                 {
                     Id = g.GameID,
                     Name = g.Name,
-                    CoverURL = igdbURL + g.GameCover.ImageID.ToString() + ".jpg",
+                    CoverURL = igdbURL + g.Cover.ImageID.ToString() + ".jpg",
                     AverageRating = g.PlayedGames
                         .SelectMany(pg => pg.Reviews)
                         .Average(r => r.Score)
@@ -39,14 +39,15 @@ namespace GameNLog.Services
                 {
                     Id = g.GameID,
                     Name = g.Name,
-                    CoverURL = igdbURL + g.GameCover.ImageID.ToString() + ".jpg",
+                    Summary = g.Summary,
+                    CoverURL = igdbURL + g.Cover.ImageID.ToString() + ".jpg",
                     Genres = g.GameGenres
                         .Select(gg => gg.Genre.Name)
                         .ToList(),
                     Platforms = g.GamePlatforms
                         .Select(gp => gp.Platform.Name)
                         .ToList(),
-                    Companies = g.GameCompanies
+                    Companies = g.InvolvedCompanies
                         .Select(gc => gc.Company.Name)
                         .ToList(),
                     AverageRating = g.PlayedGames

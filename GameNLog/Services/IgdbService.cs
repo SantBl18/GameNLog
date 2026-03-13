@@ -30,36 +30,36 @@ namespace GameNLog.Services
         public Task<List<IgdbGenre>> FetchAllGenresAsync(CancellationToken ct = default)
             => FetchAllAsync<IgdbGenre>(
                 endpoint: "genres",
-                fields: "fields id, name;",
-                filter: "",
+                fields: "fields id, name, slug;",
+                filter: "where name != null & slug != null",
                 ct: ct
                 );
         public Task<List<IgdbPlatform>> FetchAllPlatformsAsync(CancellationToken ct = default)
            => FetchAllAsync<IgdbPlatform>(
                endpoint: "platforms",
                fields: "fields id, name, abbreviation;",
-               filter: "",
+               filter: "where name != null & abbreviaton != null",
                ct: ct
                );
         public Task<List<IgdbCompany>> FetchAllCompaniesAsync(CancellationToken ct = default)
           => FetchAllAsync<IgdbCompany>(
               endpoint: "companies",
-              fields: "fields id, name, description;",
-              filter: "",
+              fields: "fields id, name, description, slug;",
+              filter: "where name != null & description != null & slug != null",
               ct: ct
               );
         public Task<List<IgdbGame>> FetchAllGamesAsync(CancellationToken ct = default)
           => FetchAllAsync<IgdbGame>(
               endpoint: "games",
-              fields: "fields id, name, summary, genres, platforms, involved_companies;",
-              filter: "where version_parent = null & category = 0;",
+              fields: "fields id, name, summary, genres, platforms, involved_companies, parent_game;",
+              filter: "where parent_game = null;",
               ct: ct
               );
         public Task<List<IgdbCover>> FetchAllCoversAsync(CancellationToken ct = default)
         => FetchAllAsync<IgdbCover>(
             endpoint: "covers",
             fields: "fields id, game, image_id;",
-            filter: "",
+            filter: "where image_id != null",
             ct: ct);
 
         private async Task<List<T>> FetchAllAsync<T>(
@@ -115,6 +115,8 @@ namespace GameNLog.Services
             sb.AppendLine($"offset {PageSize};");
             return sb.ToString();
         }
+        public static string BuildCoverUrl(string imageId)
+        => $"{ImageBaseUrl}{imageId}.jpg";
 
     }
 }

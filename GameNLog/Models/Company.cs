@@ -10,7 +10,11 @@ namespace GameNLog.Models
         public required string Name { get; set; }
         [Required]
         public required string Description { get; set; }
+        [Required]
+        public required string Slug { get; set; }
         [DataType(DataType.DateTime)]
         public DateTime UpdatedAt { get; set; }
+        public ICollection<InvolvedCompany> InvolvedCompanies{ get; } = [];
+
     }
 }

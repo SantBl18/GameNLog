@@ -9,9 +9,10 @@ namespace GameNLog.Models
         public int ReviewID { get; set; }
         [ForeignKey("PlayedGameID")]
         public int PlayedGameID { get; set; }
+        [Required]
         public int Score { get; set; }
         public string? Description { get; set; }
-
+        public required PlayedGame PlayedGame { get; set; }
 
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace GameNLog.Models
 {
-    public class GameCompany
+    public class InvolvedCompany
     {
         public int GameID { get; set; }
         public int CompanyID { get; set; }
