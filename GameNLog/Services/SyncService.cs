@@ -1,4 +1,5 @@
 ﻿using GameNLog.Data;
+using GameNLog.DTOs;
 using GameNLog.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -156,11 +157,57 @@ namespace GameNLog.Services
                     existingGame.Summary = igGame.Summary;
                     existingGame.Cover = existingCover;
                 }
+            }
+            await _db.SaveChangesAsync(ct);
 
+            // upserting joint tables
+            foreach (var igGame in igdbGames)
+            {
+                var currentGenreIds = existingGameGenres
+                    .Where(gg => gg.GameID == igGame.Id)
+                    .Select(gg => gg.GenreID);
 
+                var genreIds = igGame.Genres;
+
+                foreach (var genreId in genreIds.Except(currentGenreIds))
+                {
+                    _db.GameGenres.Add(new GameGenre
+                    {
+                        GameID = igGame.Id,
+                        GenreID = genreId
+                    });
+                }
+
+                var currentPlatformIds = existingGamePlatforms
+                    .Where(gp => gp.GameID == igGame.Id)
+                    .Select(gg => gg.PlatformID);
+
+                var platformIds = igGame.Platforms;
+                
+                foreach(var platformId in platformIds.Except(currentPlatformIds))
+                {
+                    _db.GamePlatforms.Add(new GamePlatform
+                    {
+                        GameID = igGame.Id,
+                        PlatformID = platformId
+                    });
+                }
+
+                var currentInvolvedCompanyIds = existingInvolvedCompanies
+                    .Where(ic => ic.GameID == igGame.Id)
+                    .Select(ic => ic.CompanyID);
+
+                var involvedCompanies = igGame.InvolvedCompanies
+                    .Select(ic => ic.Company);
+                foreach(var companyId in involvedCompanies.Except(currentInvolvedCompanyIds))
+                {
+                    _db.InvolvedCompanies.Add(new InvolvedCompany
+                    {
+                        GameID = igGame.Id,
+                        CompanyID = companyId
+                    });
+                }
             }
         }
     }
-
-
 }

@@ -4,7 +4,7 @@
     {
         public int GameID { get; set; }
         public int PlatformID { get; set; }
-        public required Game Game { get; set; }
-        public required Platform Platform { get; set; }
+        public Game? Game { get; set; }
+        public Platform? Platform { get; set; }
     }
 }
