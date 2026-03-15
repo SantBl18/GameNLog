@@ -17,9 +17,7 @@ namespace GameNLog.Models
         public int CoverID { get; set; }
         [DataType(DataType.DateTime)]
         public DateTime FirstReleaseDate { get; set; }
-        [DataType(DataType.DateTime)]
-        public DateTime UpdatedAt { get; set; }
-        public required Cover Cover { get; set; }
+        public Cover? Cover { get; set; }
         public ICollection<PlayedGame> PlayedGames { get; } = [];
         public ICollection<GamePlatform> GamePlatforms { get; } = [];
         public ICollection<GameGenre> GameGenres { get; } = [];

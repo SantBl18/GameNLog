@@ -1,4 +1,6 @@
-﻿namespace GameNLog.DTOs
+﻿using System.Text.Json.Serialization;
+
+namespace GameNLog.DTOs
 {
     public class IgdbGame
     {
@@ -6,10 +8,12 @@
         public required string Name { get; set; }
         public required string Summary { get; set; }
         public required string Slug { get; set; }
+        [JsonPropertyName("first_release_date")]
         public long FirstReleaseDate { get; set; }
-        public int Cover { get; set; }
+        public required IgdbCover Cover { get; set; }
         public List<int> Genres { get; } = [];
         public List<int> Platforms { get; } = [];
+        [JsonPropertyName("involved_companies")]
         public List<IgdbInvolvedCompany> InvolvedCompanies { get; } = [];
     }
 
@@ -46,7 +50,8 @@
     public class IgdbCover
     {
         public int Id { get; set; }
-        public int Game { get; set; }         
-        public required string ImageId { get; set; } 
+        public int Game { get; set; }
+        [JsonPropertyName("image_id")]
+        public string? ImageId { get; set; } 
     }
 }

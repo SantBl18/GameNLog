@@ -3,6 +3,7 @@ using System;
 using GameNLog.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace GameNLog.Migrations
 {
     [DbContext(typeof(GameNLogContext))]
-    partial class GameNLogContextModelSnapshot : ModelSnapshot
+    [Migration("20260314022440_UpdateRelations")]
+    partial class UpdateRelations
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -41,6 +44,9 @@ namespace GameNLog.Migrations
                     b.Property<string>("Slug")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("CompanyID");
 
@@ -89,6 +95,9 @@ namespace GameNLog.Migrations
                     b.Property<string>("Summary")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("GameID");
 
@@ -142,6 +151,9 @@ namespace GameNLog.Migrations
                     b.Property<string>("Slug")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("GenreId");
 

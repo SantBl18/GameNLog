@@ -18,6 +18,7 @@ namespace GameNLog.Services
         private static readonly JsonSerializerOptions _jsonOptions = new()
         {
             PropertyNameCaseInsensitive = true,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             NumberHandling = JsonNumberHandling.AllowReadingFromString,
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
         };
@@ -31,36 +32,30 @@ namespace GameNLog.Services
             => FetchAllAsync<IgdbGenre>(
                 endpoint: "genres",
                 fields: "fields id, name, slug;",
-                filter: "where name != null & slug != null",
+                filter: "where name != null & slug != null;",
                 ct: ct
                 );
         public Task<List<IgdbPlatform>> FetchAllPlatformsAsync(CancellationToken ct = default)
            => FetchAllAsync<IgdbPlatform>(
                endpoint: "platforms",
-               fields: "fields id, name, abbreviation;",
-               filter: "where name != null & abbreviaton != null",
+               fields: "fields id, name, slug, abbreviation;",
+               filter: "where name != null & abbreviation != null;",
                ct: ct
                );
         public Task<List<IgdbCompany>> FetchAllCompaniesAsync(CancellationToken ct = default)
           => FetchAllAsync<IgdbCompany>(
               endpoint: "companies",
               fields: "fields id, name, description, slug;",
-              filter: "where name != null & description != null & slug != null",
+              filter: "where name != null & description != null & slug != null;",
               ct: ct
               );
         public Task<List<IgdbGame>> FetchAllGamesAsync(CancellationToken ct = default)
           => FetchAllAsync<IgdbGame>(
               endpoint: "games",
-              fields: "fields id, name, summary, genres, platforms, involved_companies, parent_game;",
-              filter: "where parent_game = null;",
+              fields: "fields id, slug, name, cover.id, cover.image_id, summary, genres, platforms, involved_companies.company, parent_game, first_release_date;",
+              filter: "where parent_game = null & summary != null & first_release_date != null & cover.image_id != null;",
               ct: ct
               );
-        public Task<List<IgdbCover>> FetchAllCoversAsync(CancellationToken ct = default)
-        => FetchAllAsync<IgdbCover>(
-            endpoint: "covers",
-            fields: "fields id, game, image_id;",
-            filter: "where image_id != null",
-            ct: ct);
 
         private async Task<List<T>> FetchAllAsync<T>(
             string endpoint,
@@ -112,7 +107,7 @@ namespace GameNLog.Services
                 sb.AppendLine(filter);
             }
             sb.AppendLine($"limit {PageSize};");
-            sb.AppendLine($"offset {PageSize};");
+            sb.AppendLine($"offset {offset};");
             return sb.ToString();
         }
         public static string BuildCoverUrl(string imageId)

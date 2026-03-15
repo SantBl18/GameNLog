@@ -8,6 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<GameNLogContext>(options =>
 options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddScoped<IGameService, GameService>();
+builder.Services.AddScoped<SyncService>();
 builder.Services.AddHttpClient<IgdbService>(client =>
 {
     var clientId = builder.Configuration["IGDB:ClientId"];
@@ -16,9 +17,12 @@ builder.Services.AddHttpClient<IgdbService>(client =>
     client.DefaultRequestHeaders.Add("Client-ID", clientId);
     client.DefaultRequestHeaders.Authorization =
         new AuthenticationHeaderValue("Bearer", accessToken);
+    client.Timeout = TimeSpan.FromMinutes(10);
 });
+builder.Services.AddControllers();
 
 var app = builder.Build();
+app.MapControllers();
 
 
 app.MapGet("/", () => "Hello World!");
