@@ -1,0 +1,30 @@
+services:
+  gamenlog:
+    image: ${DOCKER_REGISTRY-}gamenlog
+    build:
+      context: .
+      dockerfile: GameNLog/Dockerfile
+    depends_on:
+      db:
+        condition: service_started
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+    environment:
+      - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
+      - ASPNETCORE_URLS=http://+:8080
+
+  db:
+    image: postgres:18
+    restart: always 
+    environment:
+      - POSTGRES_USER=gamenlogmanage
+      - POSTGRES_PASSWORD=8K3ESbKr@^@uXm
+      - POSTGRES_DB=appdb
+    volumes:
+      - pgdata:/var/lib/postgresql
+    ports:
+      - "5433:5432"
+
+volumes:
+  pgdata:
