@@ -1,10 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace GameNLog.Models
 {
     public class Company
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int CompanyID { get; set; }
         [Required]
         public required string Name { get; set; }

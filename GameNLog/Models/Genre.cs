@@ -6,6 +6,7 @@ namespace GameNLog.Models
     public class Genre
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int GenreId { get; set; }
         [Required]
         public required string Name { get; set; }

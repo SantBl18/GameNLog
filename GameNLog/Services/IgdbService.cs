@@ -9,7 +9,6 @@ namespace GameNLog.Services
     {
         private const int PageSize = 500;
         private const int RateLimit = 260;
-        private const string BaseUrl = "https://api.igdb.com/v4/";
         private const string ImageBaseUrl = "https://images.igdb.com/igdb/image/upload/t_cover_big/";
 
         private readonly HttpClient _http;

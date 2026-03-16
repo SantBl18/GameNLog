@@ -6,6 +6,7 @@ namespace GameNLog.Models
     public class Game
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int GameID { get; set; }
         [Required]
         public required string Name { get; set; }

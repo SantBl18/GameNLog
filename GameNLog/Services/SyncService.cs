@@ -2,6 +2,7 @@
 using GameNLog.DTOs;
 using GameNLog.Models;
 using Microsoft.EntityFrameworkCore;
+using PhenX.EntityFrameworkCore.BulkInsert.Extensions;
 using System.Diagnostics.Metrics;
 
 namespace GameNLog.Services
@@ -67,23 +68,15 @@ namespace GameNLog.Services
         private async Task SyncCompaniesAsync(CancellationToken ct)
         {
             var igdbCompanies = await _igdb.FetchAllCompaniesAsync(ct);
-            var existingCompanyIds = await _db.Companies.Select(c => c.CompanyID).ToHashSetAsync(ct);
-
-            foreach (var igCompany in igdbCompanies)
-            {
-
-                if (!existingCompanyIds.Contains(igCompany.Id))
+            var companies = igdbCompanies
+                .Select(igCompany => new Company
                 {
-                    _db.Companies.Add(new Company
-                    {
-                        CompanyID = igCompany.Id,
-                        Name = igCompany.Name,
-                        Description = igCompany.Description,
-                        Slug = igCompany.Slug
-                    });
-                }
-            }
-            await _db.SaveChangesAsync(ct);
+                    CompanyID = igCompany.Id,
+                    Name = igCompany.Name,
+                    Description = igCompany.Description,
+                    Slug = igCompany.Slug
+                });
+            await _db.ExecuteBulkInsertAsync(companies, cancellationToken: ct);
         }
 
         private async Task SyncGamesAsync(CancellationToken ct)
@@ -92,98 +85,70 @@ namespace GameNLog.Services
                 .DistinctBy(g => g.Id)
                 .ToList();
 
-            var existingCoverIds = await _db.Covers.Select(c => c.CoverID).ToHashSetAsync(ct);
-            var existingGameIds = await _db.Games.Select(g => g.GameID).ToHashSetAsync(ct);
+            var validPlatformIds = await _db.Platforms.Select(p => p.PlatformID).ToHashSetAsync();
+            var validGenreIds = await _db.Genres.Select(g => g.GenreId).ToHashSetAsync();
+            var validCompanyIds = await _db.Companies.Select(p => p.CompanyID).ToHashSetAsync();
 
-            var existingGameGenres = await _db.GameGenres.ToListAsync(ct);
-            var existingGamePlatforms = await _db.GamePlatforms.ToListAsync(ct);
-            var existingInvolvedCompanies = await _db.InvolvedCompanies.ToListAsync(ct);
-
-            foreach (var igGame in igdbGames)
-            {
-
-                IgdbCover igdbCover = igGame.Cover;
-
-                Cover? existingCover = null;
-                if (!existingCoverIds.Contains(igdbCover.Id))
+            var covers = igdbGames
+                .Select(igGame => new Cover
                 {
-                    existingCover = new Cover
-                    {
-                        CoverID = igdbCover.Id,
-                        ImageID = igdbCover.ImageId!
-                    };
-                    _db.Covers.Add(existingCover);
-                    existingCoverIds.Add(igdbCover.Id);
-                }
-                
-                if (!existingGameIds.Contains(igGame.Id))
+                    CoverID = igGame.Cover.Id,
+                    ImageID = igGame.Cover.ImageId!
+                })
+                .DistinctBy(c => c.CoverID)
+                .ToList();
+            await _db.ExecuteBulkInsertAsync(covers, cancellationToken: ct);
+            var insertedCoverIds = covers.Select(c => c.CoverID).ToHashSet();
+
+            var games = igdbGames
+                .Where(g => insertedCoverIds.Contains(g.Cover.Id))
+                .Select(igGame => new Game
                 {
-                    _db.Games.Add(new Game
-                    {
-                        GameID = igGame.Id,
-                        Name = igGame.Name,
-                        Slug = igGame.Slug,
-                        Summary = igGame.Summary,
-                        CoverID = igdbCover.Id,
-                        FirstReleaseDate = DateTimeOffset.FromUnixTimeSeconds(igGame.FirstReleaseDate).UtcDateTime
-                    });
-                }
-     
-            }
-            Console.WriteLine($"About to save {_db.ChangeTracker.Entries().Count()} entries");
-            await _db.SaveChangesAsync(ct);
-            Console.WriteLine("Save completed");
+                    GameID = igGame.Id,
+                    Name = igGame.Name,
+                    Slug = igGame.Slug,
+                    Summary = igGame.Summary,
+                    CoverID = igGame.Cover.Id,
+                    FirstReleaseDate = DateTimeOffset.FromUnixTimeSeconds(igGame.FirstReleaseDate).UtcDateTime
+                })
+                .ToList();
+            games.Take(5).ToList().ForEach(g => Console.WriteLine($"GameID: {g.GameID}, CoverID: {g.CoverID}"));
+            await _db.ExecuteBulkInsertAsync(games, cancellationToken: ct);
 
             // inserting in joint tables
-            foreach (var igGame in igdbGames)
-            {
-                var currentGenreIds = existingGameGenres
-                    .Where(gg => gg.GameID == igGame.Id)
-                    .Select(gg => gg.GenreID);
-
-                var genreIds = igGame.Genres;
-
-                foreach (var genreId in genreIds.Except(currentGenreIds))
+            var gameGenres = igdbGames.SelectMany(igGame =>
+                igGame.Genres
+                .Select(genreId => new GameGenre
                 {
-                    _db.GameGenres.Add(new GameGenre
-                    { 
-                        GameID = igGame.Id,
-                        GenreID = genreId
-                    });
-                }
+                    GameID = igGame.Id,
+                    GenreID = genreId
+                })
+            );
+            await _db.ExecuteBulkInsertAsync(gameGenres, cancellationToken: ct);
 
-                var currentPlatformIds = existingGamePlatforms
-                    .Where(gp => gp.GameID == igGame.Id)
-                    .Select(gg => gg.PlatformID);
-
-                var platformIds = igGame.Platforms;
-                
-                foreach(var platformId in platformIds.Except(currentPlatformIds))
+            var gamePlatforms = igdbGames.SelectMany(igGame =>
+                igGame.Platforms
+                .Where(validPlatformIds.Contains)
+                .Select(platformId => new GamePlatform
                 {
-                    _db.GamePlatforms.Add(new GamePlatform
-                    {
-                        GameID = igGame.Id,
-                        PlatformID = platformId
-                    });
-                }
+                    GameID = igGame.Id,
+                    PlatformID = platformId
+                })
+            );
+            await _db.ExecuteBulkInsertAsync(gamePlatforms, cancellationToken: ct);
 
-                var currentInvolvedCompanyIds = existingInvolvedCompanies
-                    .Where(ic => ic.GameID == igGame.Id)
-                    .Select(ic => ic.CompanyID);
-
-                var involvedCompanies = igGame.InvolvedCompanies
-                    .Select(ic => ic.Company);
-                foreach(var companyId in involvedCompanies.Except(currentInvolvedCompanyIds))
+            var involvedCompanies = igdbGames.SelectMany(igGame =>
+                igGame.InvolvedCompanies
+                .DistinctBy(ic => ic.Company)
+                .Select(ic => ic.Company)
+                .Where(validCompanyIds.Contains)
+                .Select(companyId => new InvolvedCompany
                 {
-                    _db.InvolvedCompanies.Add(new InvolvedCompany
-                    {
-                        GameID = igGame.Id,
-                        CompanyID = companyId
-                    });
-                }
-            }
-            await _db.SaveChangesAsync(ct);
-
+                    GameID = igGame.Id,
+                    CompanyID = companyId
+                })
+            );
+            await _db.ExecuteBulkInsertAsync(involvedCompanies, cancellationToken: ct);
         }
     }
 }

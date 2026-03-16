@@ -11,10 +11,10 @@ namespace GameNLog.DTOs
         [JsonPropertyName("first_release_date")]
         public long FirstReleaseDate { get; set; }
         public required IgdbCover Cover { get; set; }
-        public List<int> Genres { get; } = [];
-        public List<int> Platforms { get; } = [];
+        public List<int> Genres { get; set; } = [];
+        public List<int> Platforms { get; set; } = [];
         [JsonPropertyName("involved_companies")]
-        public List<IgdbInvolvedCompany> InvolvedCompanies { get; } = [];
+        public List<IgdbInvolvedCompany> InvolvedCompanies { get; set; } = [];
     }
 
     public class IgdbInvolvedCompany

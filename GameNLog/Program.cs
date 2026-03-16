@@ -1,12 +1,15 @@
 using GameNLog.Data;
 using GameNLog.Services;
 using Microsoft.EntityFrameworkCore;
+using PhenX.EntityFrameworkCore.BulkInsert.PostgreSql;
 using System.Net.Http.Headers;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<GameNLogContext>(options =>
-options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
+    .UseBulkInsertPostgreSql()
+);
 builder.Services.AddScoped<IGameService, GameService>();
 builder.Services.AddScoped<SyncService>();
 builder.Services.AddHttpClient<IgdbService>(client =>
