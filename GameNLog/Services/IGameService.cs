@@ -4,7 +4,7 @@ namespace GameNLog.Services
 {
     public interface IGameService
     {
-        Task<List<GameSummaryDTO>> GetGamesAsync();
+        Task<PaginatedResultDTO<GameSummaryDTO>> GetGamesAsync(GameFilterDTO filter);
         Task<GameDetailDTO?> GetGameByIdAsync(int id);
     }
 }

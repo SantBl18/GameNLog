@@ -1,6 +1,7 @@
 ﻿using GameNLog.DTOs;
 using GameNLog.Services;
 using Microsoft.AspNetCore.Mvc;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace GameNLog.Controllers
 {
@@ -16,9 +17,9 @@ namespace GameNLog.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<GameSummaryDTO>>> GetGames()
+        public async Task<ActionResult<List<GameSummaryDTO>>> GetGames([FromQuery] GameFilterDTO filter)
         {
-            var games = await _gameService.GetGamesAsync();
+            var games = await _gameService.GetGamesAsync(filter);
             return Ok(games);
         }
         [HttpGet("{id}")]
