@@ -43,7 +43,35 @@ namespace GameNLog.Services
 
             if (filter.SearchString is not null)
             {
-                query = query.Where(g => g.Name.Contains(filter.SearchString));
+                query = query.Where(g => EF.Functions.ToTsVector("english", g.Name)
+                    .Matches(EF.Functions.PlainToTsQuery("english", filter.SearchString))
+                    ||
+                    EF.Functions.ILike(g.Name, $"%{filter.SearchString}%"));
+            }
+
+            if (filter.SortBy is not null)
+            {
+                switch (filter.SortBy)
+                {
+                    case "name":
+                        query = filter.SortDesc ? query.OrderByDescending(g => g.Name) :
+                            query.OrderBy(g => g.Name);
+                        break;
+
+                    case "date":
+                        query = filter.SortDesc ? query.OrderByDescending(g => g.FirstReleaseDate) :
+                            query.OrderBy(g => g.FirstReleaseDate);
+                        break;
+
+                    case "rating":
+                        query = filter.SortDesc ? query.OrderByDescending(g => g.PlayedGames
+                        .SelectMany(pg => pg.Reviews)
+                        .Average(r => r.Score)) :
+                        query.OrderBy(g => g.PlayedGames
+                        .SelectMany(pg => pg.Reviews)
+                        .Average(r => r.Score));
+                        break;
+                }
             }
 
             var totalCount = await query.CountAsync();

@@ -20,6 +20,8 @@ namespace GameNLog.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+
+
             modelBuilder.Entity<InvolvedCompany>()
                 .HasKey(c => new { c.GameID, c.CompanyID });
 
