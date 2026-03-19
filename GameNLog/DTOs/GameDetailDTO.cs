@@ -9,6 +9,7 @@
         public List<string>? Genres { get; set; }
         public List<string>? Platforms { get; set; }
         public List<string>? Companies { get; set; }
+        public List<ReviewDTO>? RecentReviews { get; set; }
         public double? AverageRating { get; set; }
         public int ReviewCount { get; set; }
 

@@ -3,11 +3,12 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace GameNLog.Models
 {
+    [Table("Game")]
     public class Game
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
-        public int GameID { get; set; }
+        public int Id { get; set; }
         [Required]
         public required string Name { get; set; }
         [Required]
@@ -19,7 +20,7 @@ namespace GameNLog.Models
         [DataType(DataType.DateTime)]
         public DateTime FirstReleaseDate { get; set; }
         public Cover? Cover { get; set; }
-        public ICollection<PlayedGame> PlayedGames { get; } = [];
+        public ICollection<GameLog> PlayedGames { get; } = [];
         public ICollection<GamePlatform> GamePlatforms { get; } = [];
         public ICollection<GameGenre> GameGenres { get; } = [];
         public ICollection<InvolvedCompany> InvolvedCompanies { get; } = [];

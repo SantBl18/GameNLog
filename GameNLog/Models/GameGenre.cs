@@ -1,5 +1,8 @@
-﻿namespace GameNLog.Models
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace GameNLog.Models
 {
+    [Table("GameGenre")]
     public class GameGenre
     {
         // gameid and genreid can't be set as composite keys here,

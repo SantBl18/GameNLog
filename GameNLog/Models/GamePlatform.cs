@@ -1,5 +1,8 @@
-﻿namespace GameNLog.Models
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace GameNLog.Models
 {
+    [Table("GamePlatform")]
     public class GamePlatform
     {
         public int GameID { get; set; }

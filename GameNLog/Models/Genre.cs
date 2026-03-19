@@ -3,11 +3,12 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace GameNLog.Models
 {
+    [Table("Genre")]
     public class Genre
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
-        public int GenreId { get; set; }
+        public int Id { get; set; }
         [Required]
         public required string Name { get; set; }
         [Required]

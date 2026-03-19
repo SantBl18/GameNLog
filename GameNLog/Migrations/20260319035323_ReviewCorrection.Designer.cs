@@ -3,6 +3,7 @@ using System;
 using GameNLog.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace GameNLog.Migrations
 {
     [DbContext(typeof(GameNLogContext))]
-    partial class GameNLogContextModelSnapshot : ModelSnapshot
+    [Migration("20260319035323_ReviewCorrection")]
+    partial class ReviewCorrection
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -24,7 +27,7 @@ namespace GameNLog.Migrations
 
             modelBuilder.Entity("GameNLog.Models.Company", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("CompanyID")
                         .HasColumnType("integer");
 
                     b.Property<string>("Description")
@@ -39,28 +42,28 @@ namespace GameNLog.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.HasKey("Id");
+                    b.HasKey("CompanyID");
 
-                    b.ToTable("Company");
+                    b.ToTable("Companies");
                 });
 
             modelBuilder.Entity("GameNLog.Models.Cover", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("CoverID")
                         .HasColumnType("integer");
 
                     b.Property<string>("ImageID")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.HasKey("Id");
+                    b.HasKey("CoverID");
 
-                    b.ToTable("Cover");
+                    b.ToTable("Covers");
                 });
 
             modelBuilder.Entity("GameNLog.Models.Game", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("GameID")
                         .HasColumnType("integer");
 
                     b.Property<int>("CoverID")
@@ -81,11 +84,11 @@ namespace GameNLog.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.HasKey("Id");
+                    b.HasKey("GameID");
 
                     b.HasIndex("CoverID");
 
-                    b.ToTable("Game");
+                    b.ToTable("Games");
                 });
 
             modelBuilder.Entity("GameNLog.Models.GameGenre", b =>
@@ -100,34 +103,7 @@ namespace GameNLog.Migrations
 
                     b.HasIndex("GenreID");
 
-                    b.ToTable("GameGenre");
-                });
-
-            modelBuilder.Entity("GameNLog.Models.GameLog", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("GameID")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("LoggedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("UserID")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserID");
-
-                    b.HasIndex("GameID", "UserID")
-                        .IsUnique();
-
-                    b.ToTable("GameLog");
+                    b.ToTable("GameGenres");
                 });
 
             modelBuilder.Entity("GameNLog.Models.GamePlatform", b =>
@@ -142,39 +118,12 @@ namespace GameNLog.Migrations
 
                     b.HasIndex("PlatformID");
 
-                    b.ToTable("GamePlatform");
-                });
-
-            modelBuilder.Entity("GameNLog.Models.GameReview", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Description")
-                        .HasColumnType("text");
-
-                    b.Property<int>("GameLogId")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("ReviewedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("Score")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("GameLogId");
-
-                    b.ToTable("PlayedGameReviews");
+                    b.ToTable("GamePlatforms");
                 });
 
             modelBuilder.Entity("GameNLog.Models.Genre", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("GenreId")
                         .HasColumnType("integer");
 
                     b.Property<string>("Name")
@@ -185,9 +134,9 @@ namespace GameNLog.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.HasKey("Id");
+                    b.HasKey("GenreId");
 
-                    b.ToTable("Genre");
+                    b.ToTable("Genres");
                 });
 
             modelBuilder.Entity("GameNLog.Models.InvolvedCompany", b =>
@@ -202,12 +151,12 @@ namespace GameNLog.Migrations
 
                     b.HasIndex("CompanyID");
 
-                    b.ToTable("InvolvedCompany");
+                    b.ToTable("InvolvedCompanies");
                 });
 
             modelBuilder.Entity("GameNLog.Models.Platform", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("PlatformID")
                         .HasColumnType("integer");
 
                     b.Property<string>("Abbreviation")
@@ -222,18 +171,72 @@ namespace GameNLog.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.HasKey("Id");
+                    b.HasKey("PlatformID");
 
-                    b.ToTable("Platform");
+                    b.ToTable("Platforms");
+                });
+
+            modelBuilder.Entity("GameNLog.Models.PlayedGame", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
+
+                    b.Property<int>("GameID")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("LoggedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("UserID")
+                        .HasColumnType("integer");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("UserID");
+
+                    b.HasIndex("GameID", "UserID")
+                        .IsUnique();
+
+                    b.ToTable("PlayedGames");
+                });
+
+            modelBuilder.Entity("GameNLog.Models.Review", b =>
+                {
+                    b.Property<int>("ReviewID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ReviewID"));
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<int>("PlayedGameID")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("ReviewedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Score")
+                        .HasColumnType("integer");
+
+                    b.HasKey("ReviewID");
+
+                    b.HasIndex("PlayedGameID");
+
+                    b.ToTable("PlayedGameReviews");
                 });
 
             modelBuilder.Entity("GameNLog.Models.User", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ID"));
 
                     b.Property<string>("Biography")
                         .HasColumnType("text");
@@ -246,9 +249,9 @@ namespace GameNLog.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.HasKey("Id");
+                    b.HasKey("ID");
 
-                    b.ToTable("User");
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("GameNLog.Models.Game", b =>
@@ -281,23 +284,6 @@ namespace GameNLog.Migrations
                     b.Navigation("Genre");
                 });
 
-            modelBuilder.Entity("GameNLog.Models.GameLog", b =>
-                {
-                    b.HasOne("GameNLog.Models.Game", null)
-                        .WithMany("PlayedGames")
-                        .HasForeignKey("GameID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("GameNLog.Models.User", "User")
-                        .WithMany("PlayedGames")
-                        .HasForeignKey("UserID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("GameNLog.Models.GamePlatform", b =>
                 {
                     b.HasOne("GameNLog.Models.Game", "Game")
@@ -315,17 +301,6 @@ namespace GameNLog.Migrations
                     b.Navigation("Game");
 
                     b.Navigation("Platform");
-                });
-
-            modelBuilder.Entity("GameNLog.Models.GameReview", b =>
-                {
-                    b.HasOne("GameNLog.Models.GameLog", "PlayedGame")
-                        .WithMany("Reviews")
-                        .HasForeignKey("GameLogId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("PlayedGame");
                 });
 
             modelBuilder.Entity("GameNLog.Models.InvolvedCompany", b =>
@@ -347,6 +322,34 @@ namespace GameNLog.Migrations
                     b.Navigation("Game");
                 });
 
+            modelBuilder.Entity("GameNLog.Models.PlayedGame", b =>
+                {
+                    b.HasOne("GameNLog.Models.Game", null)
+                        .WithMany("PlayedGames")
+                        .HasForeignKey("GameID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("GameNLog.Models.User", "User")
+                        .WithMany("PlayedGames")
+                        .HasForeignKey("UserID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("GameNLog.Models.Review", b =>
+                {
+                    b.HasOne("GameNLog.Models.PlayedGame", "PlayedGame")
+                        .WithMany("Reviews")
+                        .HasForeignKey("PlayedGameID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("PlayedGame");
+                });
+
             modelBuilder.Entity("GameNLog.Models.Company", b =>
                 {
                     b.Navigation("InvolvedCompanies");
@@ -363,11 +366,6 @@ namespace GameNLog.Migrations
                     b.Navigation("PlayedGames");
                 });
 
-            modelBuilder.Entity("GameNLog.Models.GameLog", b =>
-                {
-                    b.Navigation("Reviews");
-                });
-
             modelBuilder.Entity("GameNLog.Models.Genre", b =>
                 {
                     b.Navigation("GameGenres");
@@ -376,6 +374,11 @@ namespace GameNLog.Migrations
             modelBuilder.Entity("GameNLog.Models.Platform", b =>
                 {
                     b.Navigation("GamePlatforms");
+                });
+
+            modelBuilder.Entity("GameNLog.Models.PlayedGame", b =>
+                {
+                    b.Navigation("Reviews");
                 });
 
             modelBuilder.Entity("GameNLog.Models.User", b =>

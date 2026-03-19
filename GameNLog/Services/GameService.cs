@@ -45,8 +45,7 @@ namespace GameNLog.Services
             {
                 query = query.Where(g => EF.Functions.ToTsVector("english", g.Name)
                     .Matches(EF.Functions.PlainToTsQuery("english", filter.SearchString))
-                    ||
-                    EF.Functions.ILike(g.Name, $"%{filter.SearchString}%"));
+                    || EF.Functions.ILike(g.Name, $"%{filter.SearchString}%"));
             }
 
             if (filter.SortBy is not null)
@@ -80,7 +79,7 @@ namespace GameNLog.Services
                 .Take(filter.PageSize)
                 .Select(g => new GameSummaryDTO
                 {
-                    Id = g.GameID,
+                    Id = g.Id,
                     Name = g.Name,
                     CoverURL = igdbURL + g.Cover!.ImageID.ToString() + ".jpg",
                     AverageRating = g.PlayedGames
@@ -100,29 +99,45 @@ namespace GameNLog.Services
 
         public async Task<GameDetailDTO?> GetGameByIdAsync(int id)
         {
+            var recentReviews = await _context.PlayedGameReviews
+                .Where(r => r.PlayedGame.GameID == id)
+                .OrderByDescending(r => r.ReviewedAt)
+                .Take(10)
+                .Select(r => new ReviewDTO
+                {
+                    Id = r.Id,
+                    UserId = r.PlayedGame.User.Id,
+                    Username = r.PlayedGame.User.Username,
+                    Rating = r.Score,
+                    Description = r.Description,
+                    CreatedAt = r.ReviewedAt
+                })
+                .ToListAsync();
+
             return await _context.Games
-                .Where(g => g.GameID == id)
+                .Where(g => g.Id == id)
                 .Select(g => new GameDetailDTO
                 {
-                    Id = g.GameID,
+                    Id = g.Id,
                     Name = g.Name,
                     Summary = g.Summary,
-                    CoverURL = igdbURL + g.Cover.ImageID.ToString() + ".jpg",
+                    CoverURL = igdbURL + g.Cover!.ImageID.ToString() + ".jpg",
                     Genres = g.GameGenres
-                        .Select(gg => gg.Genre.Name)
+                        .Select(gg => gg.Genre!.Name)
                         .ToList(),
                     Platforms = g.GamePlatforms
-                        .Select(gp => gp.Platform.Name)
+                        .Select(gp => gp.Platform!.Name)
                         .ToList(),
                     Companies = g.InvolvedCompanies
-                        .Select(gc => gc.Company.Name)
+                        .Select(gc => gc.Company!.Name)
                         .ToList(),
                     AverageRating = g.PlayedGames
                         .SelectMany(pg => pg.Reviews)
                         .Average(r => (double?)r.Score),
                     ReviewCount = g.PlayedGames
                         .SelectMany(pg => pg.Reviews)
-                        .Count()
+                        .Count(),
+                    RecentReviews = recentReviews
 
                 })
                 .FirstOrDefaultAsync();

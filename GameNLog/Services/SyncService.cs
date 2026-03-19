@@ -30,13 +30,13 @@ namespace GameNLog.Services
         private async Task SyncGenresAsync(CancellationToken ct)
         {
             var igdbGenres = await _igdb.FetchAllGenresAsync(ct);
-            var existingGenreIds = await _db.Genres.Select(g => g.GenreId).ToHashSetAsync(ct);
+            var existingGenreIds = await _db.Genres.Select(g => g.Id).ToHashSetAsync(ct);
             foreach (var igGenre in igdbGenres)
             {
                 if (!existingGenreIds.Contains(igGenre.Id))
                 {
                     _db.Genres.Add(new Genre { 
-                        GenreId = igGenre.Id, Name = igGenre.Name, Slug = igGenre.Slug 
+                        Id = igGenre.Id, Name = igGenre.Name, Slug = igGenre.Slug 
                     });
                 }
             }
@@ -47,14 +47,14 @@ namespace GameNLog.Services
         private async Task SyncPlatformsAsync(CancellationToken ct)
         {
             var igdbPlatforms = await _igdb.FetchAllPlatformsAsync(ct);
-            var existingCompanyIds = await _db.Platforms.Select(p => p.PlatformID).ToHashSetAsync(ct);
+            var existingCompanyIds = await _db.Platforms.Select(p => p.Id).ToHashSetAsync(ct);
 
             foreach (var igPlatform in igdbPlatforms)
             {
                 if (!existingCompanyIds.Contains(igPlatform.Id))
                 {
                     _db.Platforms.Add(new Platform {
-                        PlatformID = igPlatform.Id,
+                        Id = igPlatform.Id,
                         Name = igPlatform.Name,
                         Slug = igPlatform.Slug,
                         Abbreviation = igPlatform.Abbreviation
@@ -71,7 +71,7 @@ namespace GameNLog.Services
             var companies = igdbCompanies
                 .Select(igCompany => new Company
                 {
-                    CompanyID = igCompany.Id,
+                    Id = igCompany.Id,
                     Name = igCompany.Name,
                     Description = igCompany.Description,
                     Slug = igCompany.Slug
@@ -85,26 +85,26 @@ namespace GameNLog.Services
                 .DistinctBy(g => g.Id)
                 .ToList();
 
-            var validPlatformIds = await _db.Platforms.Select(p => p.PlatformID).ToHashSetAsync();
-            var validGenreIds = await _db.Genres.Select(g => g.GenreId).ToHashSetAsync();
-            var validCompanyIds = await _db.Companies.Select(p => p.CompanyID).ToHashSetAsync();
+            var validPlatformIds = await _db.Platforms.Select(p => p.Id).ToHashSetAsync();
+            var validGenreIds = await _db.Genres.Select(g => g.Id).ToHashSetAsync();
+            var validCompanyIds = await _db.Companies.Select(p => p.Id).ToHashSetAsync();
 
             var covers = igdbGames
                 .Select(igGame => new Cover
                 {
-                    CoverID = igGame.Cover.Id,
+                    Id = igGame.Cover.Id,
                     ImageID = igGame.Cover.ImageId!
                 })
-                .DistinctBy(c => c.CoverID)
+                .DistinctBy(c => c.Id)
                 .ToList();
             await _db.ExecuteBulkInsertAsync(covers, cancellationToken: ct);
-            var insertedCoverIds = covers.Select(c => c.CoverID).ToHashSet();
+            var insertedCoverIds = covers.Select(c => c.Id).ToHashSet();
 
             var games = igdbGames
                 .Where(g => insertedCoverIds.Contains(g.Cover.Id))
                 .Select(igGame => new Game
                 {
-                    GameID = igGame.Id,
+                    Id = igGame.Id,
                     Name = igGame.Name,
                     Slug = igGame.Slug,
                     Summary = igGame.Summary,
@@ -112,7 +112,7 @@ namespace GameNLog.Services
                     FirstReleaseDate = DateTimeOffset.FromUnixTimeSeconds(igGame.FirstReleaseDate).UtcDateTime
                 })
                 .ToList();
-            games.Take(5).ToList().ForEach(g => Console.WriteLine($"GameID: {g.GameID}, CoverID: {g.CoverID}"));
+            games.Take(5).ToList().ForEach(g => Console.WriteLine($"GameID: {g.Id}, CoverID: {g.CoverID}"));
             await _db.ExecuteBulkInsertAsync(games, cancellationToken: ct);
 
             // inserting in joint tables
