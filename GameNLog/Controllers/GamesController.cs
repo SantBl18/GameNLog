@@ -7,7 +7,7 @@ namespace GameNLog.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class GamesController : Controller
+    public class GamesController : ControllerBase
     {
         private readonly IGameService _gameService;
         

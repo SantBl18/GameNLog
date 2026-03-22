@@ -12,6 +12,8 @@ namespace GameNLog.Models
         public required string Username { get; set; }
         [Required]
         public required string Email { get; set; }
+        [Required]
+        public required string PasswordHash { get; set; }
         public string? Biography { get; set; }
         public ICollection<GameLog> PlayedGames { get; } = [];
     }
