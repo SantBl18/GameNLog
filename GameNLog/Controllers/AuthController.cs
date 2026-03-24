@@ -24,5 +24,15 @@ namespace GameNLog.Controllers
             return Ok(new { token = result.Token });
         }
 
+        [HttpPost("login")]
+        public async Task<IActionResult> Login(LoginDTO loginDTO)
+        {
+            var result = await _authService.LoginAsync(loginDTO);
+            if (!result.Success)
+                return Unauthorized(new { message = result.Error });
+            return Ok(new { token = result.Token });
+
+        }
+
     }
 }

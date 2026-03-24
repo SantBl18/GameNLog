@@ -58,6 +58,19 @@ namespace GameNLog.Services
 
         }
 
+        public async Task<AuthResultDTO> LoginAsync(LoginDTO loginDTO)
+        {
+            var user = await _context.Users
+                .FirstOrDefaultAsync(u => u.Username == loginDTO.Username
+                || u.Email == loginDTO.Username);
+
+            if (user is null || !BC.Verify(loginDTO.Password, user.PasswordHash))
+                return new AuthResultDTO { Success = false, Error = "Username/Email or password are incorrect." };
+
+            var token = await GenerateJwt(user);
+            return new AuthResultDTO { Success = true, Token = token };
+        }
+
         private async Task<string> GenerateJwt(User user)
         {
             var securityKey = new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
