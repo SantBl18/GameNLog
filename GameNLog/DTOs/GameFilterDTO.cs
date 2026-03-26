@@ -3,10 +3,10 @@
 namespace GameNLog.DTOs
 {
     public class GameFilterDTO
-    {  
-        public List<int>? Genres { get; set; }
-        public List<int>? Platforms { get; set; }
-        public List<int>? Companies { get; set; }
+    {
+        public List<int> Genres { get; set; } = [];
+        public List<int> Platforms { get; set; } = [];
+        public List<int> Companies { get; set; } = [];
         [FromQuery(Name = "from")]
         public DateTime? ReleaseDateFrom { get; set; }
         [FromQuery(Name = "to")]

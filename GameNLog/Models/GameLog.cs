@@ -13,6 +13,7 @@ namespace GameNLog.Models
         [DataType(DataType.DateTime)]
         public DateTime LoggedAt { get; set; }
         public User? User { get; set; }
+        public Game? Game { get; set; }
         public ICollection<GameReview> Reviews { get; } = new List<GameReview>();
     }
 }

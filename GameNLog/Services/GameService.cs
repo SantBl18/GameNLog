@@ -99,7 +99,7 @@ namespace GameNLog.Services
 
         public async Task<GameDetailDTO?> GetGameByIdAsync(int id)
         {
-            var recentReviews = await _context.PlayedGameReviews
+            var recentReviews = await _context.GameReviews
                 .Where(r => r.PlayedGame.GameID == id)
                 .OrderByDescending(r => r.ReviewedAt)
                 .Take(10)

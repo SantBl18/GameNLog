@@ -16,7 +16,7 @@ namespace GameNLog.Data
         public DbSet<GameGenre> GameGenres { get; set; }
         public DbSet<GamePlatform> GamePlatforms { get; set; }
         public DbSet<GameLog> PlayedGames { get; set; }
-        public DbSet<GameReview> PlayedGameReviews { get; set; }
+        public DbSet<GameReview> GameReviews { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
