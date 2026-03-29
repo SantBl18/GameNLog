@@ -17,7 +17,10 @@ namespace GameNLog.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<UserProfileDTO>> GetUser(int id)
         {
-
+            var user = await _userService.GetUserProfile(id);
+            if (user == null)
+                return NotFound();
+            return Ok(user);
         }
     }
 }

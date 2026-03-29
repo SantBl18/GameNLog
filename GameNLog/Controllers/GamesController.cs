@@ -30,5 +30,6 @@ namespace GameNLog.Controllers
                 return NotFound();
             return Ok(game);
         }
+
     }
 }

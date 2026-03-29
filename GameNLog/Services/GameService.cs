@@ -18,15 +18,15 @@ namespace GameNLog.Services
         public async Task<PaginatedResultDTO<GameSummaryDTO>> GetGamesAsync(GameFilterDTO filter)
         {
             var query = _context.Games.AsQueryable();
-            if (filter.Companies is not null)
+            if (filter.Companies.Any())
             {
                 query = query.Where(g => g.InvolvedCompanies.Any(ic => filter.Companies.Contains(ic.CompanyID)));
             }
-            if (filter.Genres is not null)
+            if (filter.Genres.Any())
             {
                 query = query.Where(g => g.GameGenres.Any(gg => filter.Genres.Contains(gg.GenreID)));
             }
-            if (filter.Platforms is not null)
+            if (filter.Platforms.Any())
             {
                 query = query.Where(g => g.GamePlatforms.Any(gp => filter.Platforms.Contains(gp.PlatformID)));
             }
@@ -36,9 +36,9 @@ namespace GameNLog.Services
                 query = query.Where(g => g.FirstReleaseDate >= filter.ReleaseDateFrom);
             }
 
-            if (filter.ReleaseDateFrom is not null)
+            if (filter.ReleaseDateTo is not null)
             {
-                query = query.Where(g => g.FirstReleaseDate >= filter.ReleaseDateFrom);
+                query = query.Where(g => g.FirstReleaseDate <= filter.ReleaseDateFrom);
             }
 
             if (filter.SearchString is not null)
