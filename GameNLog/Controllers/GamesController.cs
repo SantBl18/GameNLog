@@ -22,6 +22,7 @@ namespace GameNLog.Controllers
             var games = await _gameService.GetGamesAsync(filter);
             return Ok(games);
         }
+
         [HttpGet("{id}")]
         public async Task<ActionResult<GameDetailDTO>> GetGame(int id)
         {
@@ -29,6 +30,19 @@ namespace GameNLog.Controllers
             if (game == null)
                 return NotFound();
             return Ok(game);
+        }
+        [HttpGet("genres")]
+        public async Task<ActionResult<List<GenreDTO>>> GetGenres()
+        {
+            var genres = await _gameService.GetGenresAsync();
+            return Ok(genres);
+        }
+
+        [HttpGet("platforms")]
+        public async Task<ActionResult<List<PlatformDTO>>> GetPlatforms()
+        {
+            var platforms = await _gameService.GetPlatformsAsync();
+            return Ok(platforms);
         }
 
     }

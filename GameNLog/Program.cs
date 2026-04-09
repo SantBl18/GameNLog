@@ -1,4 +1,5 @@
 using GameNLog.Data;
+using GameNLog.Models;
 using GameNLog.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -10,7 +11,10 @@ using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<GameNLogContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
+    options.UseNpgsql(
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        o => o.MapEnum<LogType>("logtype")
+    )
     .UseBulkInsertPostgreSql()
 );
 builder.Services.AddScoped<IGameService, GameService>();

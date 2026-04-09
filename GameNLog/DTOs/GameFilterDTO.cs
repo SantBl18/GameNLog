@@ -6,7 +6,6 @@ namespace GameNLog.DTOs
     {
         public List<int> Genres { get; set; } = [];
         public List<int> Platforms { get; set; } = [];
-        public List<int> Companies { get; set; } = [];
         [FromQuery(Name = "from")]
         public DateTime? ReleaseDateFrom { get; set; }
         [FromQuery(Name = "to")]
@@ -15,7 +14,9 @@ namespace GameNLog.DTOs
         public string? SearchString { get; set; }
         public string? SortBy { get; set; }
         public bool SortDesc { get; set; } = false;
-        public int Page { get; set; } = 1;
+        public DateTime? LastDate { get; set; }
+        public int? LastRating { get; set; }
+        public int? LastId { get; set; }
         public int PageSize { get; set; } = 50;
     }
 }

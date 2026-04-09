@@ -6,5 +6,7 @@ namespace GameNLog.Services
     {
         Task<PaginatedResultDTO<GameSummaryDTO>> GetGamesAsync(GameFilterDTO filter);
         Task<GameDetailDTO?> GetGameByIdAsync(int id);
+        Task<List<GenreDTO>> GetGenresAsync();
+        Task<List<PlatformDTO>> GetPlatformsAsync();
     }
 }

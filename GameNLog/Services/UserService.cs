@@ -33,28 +33,28 @@ namespace GameNLog.Services
                 .Select(gr => new ProfileReviewDTO
                 {
                     Id = gr.Id,
-                    Rating = gr.Score,
+                    Rating = gr.GameLog.Score,
                     Description = gr.Description,
                     CreatedAt = gr.ReviewedAt,
                     Game = new ProfileGameSummaryDTO
                     {
-                        Id = gr.PlayedGame.GameID,
-                        Name = gr.PlayedGame.Game.Name,
-                        CoverURL = igdbURL + gr.PlayedGame.Game.Cover.ImageID.ToString() + ".jpg"
+                        Id = gr.Game.Id,
+                        Name = gr.Game.Name,
+                        CoverURL = igdbURL + gr.Game.Cover.ImageId.ToString() + ".jpg"
                     }
                 })
                 .ToListAsync();
 
-            var recentlyPlayed = await _context.PlayedGames
-                .Where(pg => pg.UserID == id)
+            var recentlyPlayed = await _context.GameLogs
+                .Where(gl => gl.User.Id == id)
                 .OrderByDescending(pg => pg.LoggedAt)
                 .Take(5)
                 .Select(pg => new GameSummaryDTO
                 {
-                    Id = pg.GameID,
+                    Id = pg.GameId,
                     Name = pg.Game.Name,
-                    CoverURL = igdbURL + pg.Game.Cover.ImageID.ToString() + ".jpg",
-                    AverageRating = pg.Reviews
+                    CoverURL = igdbURL + pg.Game.Cover.ImageId.ToString() + ".jpg",
+                    AverageRating = pg.Game.GameLogs
                         .Average(r => r.Score)
 
                 })

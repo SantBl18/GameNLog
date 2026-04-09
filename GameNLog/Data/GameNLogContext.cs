@@ -7,7 +7,7 @@ namespace GameNLog.Data
     {
         public GameNLogContext(DbContextOptions<GameNLogContext> options) : base(options) { }
         public DbSet<Game> Games { get; set; }
-        public DbSet<Cover> Covers { get; set; }
+        public DbSet<GameCover> Covers { get; set; }
         public DbSet<Genre> Genres { get; set; }
         public DbSet<Platform> Platforms { get; set; }
         public DbSet<Company> Companies { get; set; }
@@ -15,24 +15,12 @@ namespace GameNLog.Data
         public DbSet<InvolvedCompany> InvolvedCompanies { get; set; }
         public DbSet<GameGenre> GameGenres { get; set; }
         public DbSet<GamePlatform> GamePlatforms { get; set; }
-        public DbSet<GameLog> PlayedGames { get; set; }
+        public DbSet<GameLog> GameLogs { get; set; }
         public DbSet<GameReview> GameReviews { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-
-
-            modelBuilder.Entity<InvolvedCompany>()
-                .HasKey(c => new { c.GameID, c.CompanyID });
-
-            modelBuilder.Entity<GameGenre>()
-                .HasKey(c => new { c.GameID, c.GenreID });
-
-            modelBuilder.Entity<GamePlatform>()
-                .HasKey(c => new { c.GameID, c.PlatformID });
-
-            modelBuilder.Entity<GameLog>()
-                .HasIndex(c => new { c.GameID, c.UserID }).IsUnique();
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(GameNLogContext).Assembly);
         }
     }
 }

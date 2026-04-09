@@ -18,27 +18,28 @@ namespace GameNLog.Services
         public async Task<PaginatedResultDTO<GameSummaryDTO>> GetGamesAsync(GameFilterDTO filter)
         {
             var query = _context.Games.AsQueryable();
-            if (filter.Companies.Any())
-            {
-                query = query.Where(g => g.InvolvedCompanies.Any(ic => filter.Companies.Contains(ic.CompanyID)));
-            }
+
             if (filter.Genres.Any())
             {
-                query = query.Where(g => g.GameGenres.Any(gg => filter.Genres.Contains(gg.GenreID)));
+                query = query
+                    .Where(g => g.GameGenres.Any(gg => filter.Genres.Contains(gg.GenreId)));
             }
             if (filter.Platforms.Any())
             {
-                query = query.Where(g => g.GamePlatforms.Any(gp => filter.Platforms.Contains(gp.PlatformID)));
+                query = query
+                    .Where(g => g.GamePlatforms.Any(gp => filter.Platforms.Contains(gp.PlatformId)));
             }
 
             if (filter.ReleaseDateFrom is not null)
             {
-                query = query.Where(g => g.FirstReleaseDate >= filter.ReleaseDateFrom);
+                query = query
+                    .Where(g => g.FirstReleaseDate >= filter.ReleaseDateFrom);
             }
 
             if (filter.ReleaseDateTo is not null)
             {
-                query = query.Where(g => g.FirstReleaseDate <= filter.ReleaseDateFrom);
+                query = query
+                    .Where(g => g.FirstReleaseDate <= filter.ReleaseDateTo);
             }
 
             if (filter.SearchString is not null)
@@ -52,46 +53,59 @@ namespace GameNLog.Services
             {
                 switch (filter.SortBy)
                 {
-                    case "name":
-                        query = filter.SortDesc ? query.OrderByDescending(g => g.Name) :
-                            query.OrderBy(g => g.Name);
-                        break;
-
                     case "date":
-                        query = filter.SortDesc ? query.OrderByDescending(g => g.FirstReleaseDate) :
-                            query.OrderBy(g => g.FirstReleaseDate);
+                        query = filter.SortDesc
+                            ? query.OrderByDescending(g => g.FirstReleaseDate).ThenByDescending(g => g.Id)
+                            : query.OrderBy(g => g.FirstReleaseDate).ThenBy(g => g.Id);
                         break;
 
                     case "rating":
-                        query = filter.SortDesc ? query.OrderByDescending(g => g.PlayedGames
-                        .SelectMany(pg => pg.Reviews)
-                        .Average(r => r.Score)) :
-                        query.OrderBy(g => g.PlayedGames
-                        .SelectMany(pg => pg.Reviews)
-                        .Average(r => r.Score));
+                        query = filter.SortDesc 
+                            ? query.OrderByDescending(g => g.BayesianRating).ThenByDescending(g => g.Id)
+                            : query.OrderBy(g => g.BayesianRating).ThenBy(g => g.Id);
+                        break;
+
+                    default:
+                        query = filter.SortDesc 
+                            ? query.OrderByDescending(g => g.Name).ThenByDescending(g => g.Id)
+                            : query.OrderBy(g => g.Name).ThenBy(g => g.Id);
                         break;
                 }
             }
 
-            var totalCount = await query.CountAsync();
+            if (filter.SortBy == "date" && filter.LastDate is not null && filter.LastId is not null)
+            {
+                query = filter.SortDesc 
+                    ? query.Where(g => g.FirstReleaseDate < filter.LastDate ||
+                    (g.FirstReleaseDate == filter.LastDate && g.Id < filter.LastId))
+                    : query.Where(g => g.FirstReleaseDate > filter.LastDate ||
+                    (g.FirstReleaseDate == filter.LastDate && g.Id > filter.LastId));
+            }
+
+            else if (filter.SortBy == "rating" && filter.LastRating is not null && filter.LastId is not null)
+            {
+                query = filter.SortDesc
+                    ? query.Where(g => g.BayesianRating < filter.LastRating ||
+                    (g.BayesianRating == filter.LastRating && g.Id < filter.LastId))
+                    : query.Where(g => g.BayesianRating > filter.LastRating ||
+                    (g.BayesianRating == filter.LastRating && g.Id > filter.LastId));
+            }
+
             var games = await query
-                .Skip((filter.Page - 1) * filter.PageSize)
                 .Take(filter.PageSize)
                 .Select(g => new GameSummaryDTO
                 {
                     Id = g.Id,
                     Name = g.Name,
-                    CoverURL = igdbURL + g.Cover!.ImageID.ToString() + ".jpg",
-                    AverageRating = g.PlayedGames
-                        .SelectMany(pg => pg.Reviews)
-                        .Average(r => r.Score)
+                    CoverURL = g.Cover != null
+                        ? igdbURL + g.Cover.ImageId + ".jpg"
+                        : null,
+                    AverageRating = g.AverageRating
                 })
                 .ToListAsync();
 
             return new PaginatedResultDTO<GameSummaryDTO>
             {
-                TotalCount = totalCount,
-                Page = filter.Page,
                 PageSize = filter.PageSize,
                 Data = games
             };
@@ -100,15 +114,15 @@ namespace GameNLog.Services
         public async Task<GameDetailDTO?> GetGameByIdAsync(int id)
         {
             var recentReviews = await _context.GameReviews
-                .Where(r => r.PlayedGame.GameID == id)
+                .Where(r => r.GameLog.GameId == id)
                 .OrderByDescending(r => r.ReviewedAt)
                 .Take(10)
                 .Select(r => new ReviewDTO
                 {
                     Id = r.Id,
-                    UserId = r.PlayedGame.User.Id,
-                    Username = r.PlayedGame.User.Username,
-                    Rating = r.Score,
+                    UserId = r.GameLog.User.Id,
+                    Username = r.GameLog.User.Username,
+                    Rating = r.GameLog.Score,
                     Description = r.Description,
                     CreatedAt = r.ReviewedAt
                 })
@@ -121,7 +135,9 @@ namespace GameNLog.Services
                     Id = g.Id,
                     Name = g.Name,
                     Summary = g.Summary,
-                    CoverURL = igdbURL + g.Cover!.ImageID.ToString() + ".jpg",
+                    CoverURL = g.Cover != null
+                        ? igdbURL + g.Cover.ImageId + ".jpg"
+                        : null,
                     Genres = g.GameGenres
                         .Select(gg => gg.Genre!.Name)
                         .ToList(),
@@ -131,16 +147,37 @@ namespace GameNLog.Services
                     Companies = g.InvolvedCompanies
                         .Select(gc => gc.Company!.Name)
                         .ToList(),
-                    AverageRating = g.PlayedGames
-                        .SelectMany(pg => pg.Reviews)
-                        .Average(r => (double?)r.Score),
-                    ReviewCount = g.PlayedGames
-                        .SelectMany(pg => pg.Reviews)
-                        .Count(),
+                    AverageRating = g.AverageRating,
+                    ReviewCount = g.RatingCount,
                     RecentReviews = recentReviews
 
                 })
                 .FirstOrDefaultAsync();
+        }
+
+        public async Task<List<GenreDTO>> GetGenresAsync()
+        {
+            return await _context.Genres
+                .Select(g => new GenreDTO
+                {
+                    Id = g.Id,
+                    Name = g.Name,
+                    Slug = g.Slug
+                })
+                .ToListAsync();
+        }
+
+        public async Task<List<PlatformDTO>> GetPlatformsAsync()
+        {
+            return await _context.Platforms
+                .Select(p => new PlatformDTO
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Slug = p.Slug,
+                    Abbreviation = p.Abbreviation
+                })
+                .ToListAsync();
         }
     }
 }

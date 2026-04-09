@@ -14,7 +14,8 @@ export default function Games() {
 
     const page = parseInt(searchParams.get("page") ?? "1");
     const search = searchParams.get("search") ?? "";
-    const genre = searchParams.get("genre")
+    const genresParams = searchParams.getAll("genres")
+    const platformsParams = searchParams.getAll("platforms")
 
     useEffect(() => {
         const delayDebounce = setTimeout(() => {
@@ -42,6 +43,10 @@ export default function Games() {
             prev.set("page", "1");
             return prev;
         })
+    }
+
+    function handleGenresChange(genres: string[]){
+        
     }
 
     return (

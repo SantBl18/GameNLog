@@ -1,21 +1,25 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace GameNLog.Models
 {
-    [Table("Platform")]
     public class Platform
     {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id { get; set; }
-        [Required]
         public required string Name { get; set; }
-        [Required]
         public required string Slug { get; set; }
-        [Required]
-        public required string Abbreviation { get; set; }
+        public string? Abbreviation { get; set; }
         public ICollection<GamePlatform> GamePlatforms { get; } = [];
+    }
 
+    public class PlatformConfiguration : IEntityTypeConfiguration<Platform>
+    {
+        public void Configure(EntityTypeBuilder<Platform> builder)
+        {
+            builder.ToTable("Platform");
+            builder.Property(p => p.Id).ValueGeneratedNever();
+        }
     }
 }
